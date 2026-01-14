@@ -1,0 +1,102 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Recommender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        input, button, textarea {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            background: orange;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        textarea {
+            background: #222;
+            color: white;
+            height: 140px;
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>🎬 Movie Recommender</h2>
+
+    <input
+        type="text"
+        id="movie"
+        placeholder="Type movie name (e.g. Dark Knight)"
+    >
+
+    <button onclick="recommendMovie()">Recommend Movies</button>
+
+    <textarea id="result" placeholder="Results will appear here..."></textarea>
+</div>
+
+<script>
+function recommendMovie() {
+    const movieInput = document.getElementById("movie");
+    const resultBox = document.getElementById("result");
+
+    const movie = movieInput.value.trim();
+
+    if (movie === "") {
+        resultBox.value = "Please enter a movie name";
+        return;
+    }
+
+    fetch("/recommend", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ movie: movie })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultBox.value = data.error;
+        } else if (data.recommendations) {
+            resultBox.value = data.recommendations.join("\n");
+        } else {
+            resultBox.value = "Unexpected response from server";
+        }
+    })
+    .catch(error => {
+        resultBox.value = "Server error. Check Flask console.";
+    });
+}
+</script>
+
+</body>
+</html>
